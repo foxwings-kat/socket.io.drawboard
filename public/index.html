@@ -201,6 +201,7 @@
 
 		$('#selectColor').change(function () {
 			curColor = $('#selectColor option:selected').val();
+			current.color = curColor;
 		});
 
 		var current = {
@@ -220,8 +221,8 @@
 
 		socket.on('drawing', onDrawingEvent);
 
-		window.addEventListener('resize', onResize, false);
-		onResize();
+		//window.addEventListener('resize', onResize, false);
+		//onResize();
 
 		function drawLine(x0, y0, x1, y1, color, emit) {
 			context.beginPath();
@@ -247,21 +248,32 @@
 
 		function onMouseDown(e) {
 			drawing = true;
-			current.x = e.clientX || e.touches[0].clientX;
-			current.y = e.clientY || e.touches[0].clientY;
+			
+			current.x = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
+			current.y = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
+			
 		}
 
 		function onMouseUp(e) {
 			if (!drawing) { return; }
 			drawing = false;
-			drawLine(current.x, current.y, e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
+			
+			let nextX = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
+			let nextY = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
+			
+			drawLine(current.x, current.y, nextX, nextY, current.color, true);
 		}
 
 		function onMouseMove(e) {
 			if (!drawing) { return; }
-			drawLine(current.x, current.y, e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
-			current.x = e.clientX || e.touches[0].clientX;
-			current.y = e.clientY || e.touches[0].clientY;
+			
+			let nextX = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
+			let nextY = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
+			
+			drawLine(current.x, current.y, nextX, nextY, current.color, true);
+			
+			current.x = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
+			current.y = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
 		}
 
 		function onColorUpdate(e) {

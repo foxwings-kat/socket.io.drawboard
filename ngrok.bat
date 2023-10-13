@@ -1,0 +1,1 @@
+cmd /k "ngrok http 3000"

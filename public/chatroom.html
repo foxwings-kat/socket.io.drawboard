@@ -88,7 +88,6 @@
 			<input type="text" id="joinNewRoomInput" name="fname" placeholder="enter Room code">
 		</form>
 	</div>
-	<iframe id = "chatFrame" src="./chatroom.html" width ="500"></iframe>
 	<div id="board">
 		<canvas id="myCanvas" width="500px" height="500px">
 			Sorry, your browser doesn't support canvas technology.
@@ -180,17 +179,6 @@
 	<script type="text/JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2">
     </script>
 	<script type="text/javascript">
-	
-		window.addEventListener('resize', onResize, false);
-		onResize();
-		
-		
-		function onResize() {
-			console.log("rez");
-			document.getElementById('chatFrame').width = window.innerWidth/3;
-			document.getElementById('chatFrame').height = window.innerHeight;
-		}
-		
 		var turn_to_draw = false;
 		var drawBTN = document.getElementById('drawBTN');
 
@@ -252,7 +240,8 @@
 
 		socket.on('drawing', onDrawingEvent);
 
-		
+		//window.addEventListener('resize', onResize, false);
+		//onResize();
 
 		function drawLine(x0, y0, x1, y1, color, lineWidth, emit) {
 			context.beginPath();
@@ -332,7 +321,10 @@
 
 		// make the canvas fill its parent
 		
-		
+		function onResize() {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		}
 		
 	</script>
 </body>

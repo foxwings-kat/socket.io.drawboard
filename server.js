@@ -42,12 +42,15 @@ io.on('connection', (socket) => {
   //房間
   socket.on('join_room', function (room) {
     socket.join(room);
-    console.log('user: ' + socket.id + ' join the room: ' + room);
+	
+	io.to(room).emit('chat message', 'user: ' + socket.id + ' joined the room');
+    console.log('user: ' + socket.id + ' joined the room: ' + room);
   });
   
   socket.on('leave_room', function (room) {
     socket.leave(room);
-    console.log('user: ' + socket.id + ' leave the room: ' + room);
+	io.to(room).emit('chat message', 'user: ' + socket.id + ' left the room');
+    console.log('user: ' + socket.id + ' left the room: ' + room);
   });
 
 });

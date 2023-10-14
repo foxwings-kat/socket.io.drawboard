@@ -37,19 +37,23 @@ io.on('connection', (socket) => {
     console.log(socket.id+"/"+ data.whoWantToDraw +" now is drawing");
   });
   
-  socket.on('drawing', (data, roomNumber) => socket.broadcast.to(roomNumber).emit('drawing', data, roomNumber));
+  socket.on('drawing', (data, roomNumber) => {
+	socket.broadcast.to(roomNumber).emit('drawing', data, roomNumber);
+	console.log("drawing data" + socket.id + " to room: " +roomNumber);
+  });
   
   //房間
   socket.on('join_room', function (room) {
     socket.join(room);
-	
-	io.to(room).emit('chat message', 'user: ' + socket.id + ' joined the room');
+		 
+	io.to(room).emit('chat message', 'user: ' + socket.id + ' joined the room'); 
     console.log('user: ' + socket.id + ' joined the room: ' + room);
   });
   
   socket.on('leave_room', function (room) {
     socket.leave(room);
-	io.to(room).emit('chat message', 'user: ' + socket.id + ' left the room');
+	
+	io.to(room).emit('chat message', 'user: ' + socket.id + ' left the room'); 
     console.log('user: ' + socket.id + ' left the room: ' + room);
   });
 

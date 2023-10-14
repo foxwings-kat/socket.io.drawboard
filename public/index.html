@@ -6,7 +6,12 @@
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<title>Socket.IO chat</title>
 	<style>
+		.inline-div {
+			display: inline-block;
+			text-align: center;
+		}
 		.roomNumDiv {
+			height: 50px;
 			position: relative;
 			top: 0;
 			left: 0;
@@ -88,31 +93,31 @@
 			<input type="text" id="joinNewRoomInput" name="fname" placeholder="enter Room code">
 		</form>
 	</div>
-	<iframe id = "chatFrame" src="./chatroom.html" width ="500"></iframe>
-	<div id="board">
-		<canvas id="myCanvas" width="500px" height="500px">
-			Sorry, your browser doesn't support canvas technology.
-		</canvas>
-		<p>Color picker: 
-			<select id="selectColor">
-				<option id="colBlack" value="black" selected="selected">Black</option>
-				<option id="colRed" value="red">Red</option>
-				<option id="colBlue" value="blue">Blue</option>
-				<option id="colGreen" value="green">Green</option>
-				<option id="colOrange" value="orange">Orange</option>
-				<option id="colYellow" value="yellow">Yellow</option>
-			</select>
-		</p>
-		<p>Line width: <input type="range" id ="lineWidthSlider" min="1" max="10" value="5">
-					<input type="number" id="lineWidthInput" value="5" style="width: 40px;"></p>
-		<button type="button" id="drawBTN">I want to DRAW</button>
-	</div><!-- END board -->
+	<div class="inline-div">
+		<iframe id = "chatFrame" src="./chatroom.html"></iframe>
+	</div>
+	<div class="inline-div">
+		<div id="board">
+			<canvas id="myCanvas" width="500px" height="500px">
+				Sorry, your browser doesn't support canvas technology.
+			</canvas>
+			<p>Color picker: 
+				<select id="selectColor">
+					<option id="colBlack" value="black" selected="selected">Black</option>
+					<option id="colRed" value="red">Red</option>
+					<option id="colBlue" value="blue">Blue</option>
+					<option id="colGreen" value="green">Green</option>
+					<option id="colOrange" value="orange">Orange</option>
+					<option id="colYellow" value="yellow">Yellow</option>
+				</select>
+			</p>
+			<p>Line width: <input type="range" id ="lineWidthSlider" min="1" max="10" value="5">
+						<input type="number" id="lineWidthInput" value="5" style="width: 40px;"></p>
+			<button type="button" id="drawBTN">I want to DRAW</button>
+		</div><!-- END board -->
+	</div>
 	
-	<form id="form" action="">
-		<input id="input" autocomplete="off" /><button>Send</button>
-	</form>
-
-	<ul id="messages"></ul>
+	
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		var roomNumber;
@@ -140,17 +145,6 @@
 		var form = document.getElementById('form');
 		var messages = document.getElementById('messages');
 
-		form.addEventListener('submit', function (e) {
-			e.preventDefault();
-			if (input.value) {
-				let msg = {
-					"msg": input.value,
-					"roomNumber": roomNumber,
-				}
-				socket.emit('chat message', msg);
-				input.value = '';
-			}
-		});
 
 		joinNewRoomForm.addEventListener('submit', function (e) {
 			e.preventDefault();
@@ -158,6 +152,7 @@
 				socket.emit('leave_room', roomNumber);
 				roomNumber = joinNewRoomInput.value;
 				socket.emit('join_room', roomNumber);
+				chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
 			}
 		});
 
@@ -166,14 +161,8 @@
 			roomNumber = generateRandomString(6);
 			joinNewRoomInput.value = roomNumber;
 			socket.emit('join_room', roomNumber);
+			chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
 		});
-
-		socket.on('chat message', function (msg) {
-			var item = document.createElement('li');
-			item.textContent = msg;
-			messages.appendChild(item);
-			window.scrollTo(0, document.body.scrollHeight);
-		});	
 	</script>
 
 	<!-- board Script -->
@@ -188,7 +177,7 @@
 		function onResize() {
 			console.log("rez");
 			document.getElementById('chatFrame').width = window.innerWidth/3;
-			document.getElementById('chatFrame').height = window.innerHeight;
+			document.getElementById('chatFrame').height = window.innerHeight - 50;
 		}
 		
 		var turn_to_draw = false;
@@ -327,6 +316,7 @@
 		function onDrawingEvent(data) {
 			var w = canvas.width;
 			var h = canvas.height;
+			console.log("draw data");
 			drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.lineWidth);
 		}
 

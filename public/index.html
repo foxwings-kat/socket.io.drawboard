@@ -108,11 +108,6 @@
 		<button type="button" id="drawBTN">I want to DRAW</button>
 	</div><!-- END board -->
 	
-	<form id="form" action="">
-		<input id="input" autocomplete="off" /><button>Send</button>
-	</form>
-
-	<ul id="messages"></ul>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		var roomNumber;
@@ -140,17 +135,6 @@
 		var form = document.getElementById('form');
 		var messages = document.getElementById('messages');
 
-		form.addEventListener('submit', function (e) {
-			e.preventDefault();
-			if (input.value) {
-				let msg = {
-					"msg": input.value,
-					"roomNumber": roomNumber,
-				}
-				socket.emit('chat message', msg);
-				input.value = '';
-			}
-		});
 
 		joinNewRoomForm.addEventListener('submit', function (e) {
 			e.preventDefault();
@@ -158,6 +142,7 @@
 				socket.emit('leave_room', roomNumber);
 				roomNumber = joinNewRoomInput.value;
 				socket.emit('join_room', roomNumber);
+				chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
 			}
 		});
 
@@ -166,14 +151,8 @@
 			roomNumber = generateRandomString(6);
 			joinNewRoomInput.value = roomNumber;
 			socket.emit('join_room', roomNumber);
+			chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
 		});
-
-		socket.on('chat message', function (msg) {
-			var item = document.createElement('li');
-			item.textContent = msg;
-			messages.appendChild(item);
-			window.scrollTo(0, document.body.scrollHeight);
-		});	
 	</script>
 
 	<!-- board Script -->
@@ -327,6 +306,7 @@
 		function onDrawingEvent(data) {
 			var w = canvas.width;
 			var h = canvas.height;
+			console.log("draw data");
 			drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.lineWidth);
 		}
 

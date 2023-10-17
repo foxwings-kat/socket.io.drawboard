@@ -5,85 +5,7 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<title>Socket.IO chat</title>
-	<style>
-		.inline-div {
-			display: inline-block;
-			text-align: center;
-		}
-		.roomNumDiv {
-			height: 50px;
-			position: relative;
-			top: 0;
-			left: 0;
-			right: 0;
-			background-color: lightblue;
-			text-align: center;
-		}
-
-		body {
-			margin: 0;
-			padding-bottom: 3rem;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-		}
-
-		#form {
-			background: rgba(0, 0, 0, 0.15);
-			padding: 0.25rem;
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			display: flex;
-			height: 3rem;
-			box-sizing: border-box;
-			backdrop-filter: blur(10px);
-		}
-
-		#input {
-			border: none;
-			padding: 0 1rem;
-			flex-grow: 1;
-			border-radius: 2rem;
-			margin: 0.25rem;
-		}
-
-		#input:focus {
-			outline: none;
-		}
-
-		#form>button {
-			background: #333;
-			border: none;
-			padding: 0 1rem;
-			margin: 0.25rem;
-			border-radius: 3px;
-			outline: none;
-			color: #fff;
-		}
-
-		#messages {
-			list-style-type: none;
-			margin: 0;
-			padding: 0;
-		}
-
-		#messages>li {
-			padding: 0.5rem 1rem;
-		}
-
-		#messages>li:nth-child(odd) {
-			background: #efefef;
-		}
-
-		#board {
-			margin: 0 auto;
-			width: 500px;
-		}
-
-		#myCanvas {
-			border: 3px dotted #000;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
@@ -93,238 +15,43 @@
 			<input type="text" id="joinNewRoomInput" name="fname" placeholder="enter Room code">
 		</form>
 	</div>
-	<div class="inline-div">
-		<iframe id = "chatFrame" src="./chatroom.html"></iframe>
+
+	<div class="container">
+		<div>
+			<iframe id = "chatFrame" src="./chatroom.html"></iframe>
+		</div>
+		<div id ="toolbox">
+			<div>
+				<span>Color picker:</span>
+				<div>
+					<div class="color-preview"></div>
+					<input type="color" id="colorInput" class="color-input" value="#000000">
+				</div>
+				<script src="color-picker.js"></script>
+				<span>Line width:</span>
+				<input type="range" id ="lineWidthSlider" min="1" max="10" value="5">
+				<input type="number" id="lineWidthInput" value="5" style="width: 40px;"></p>
+			</div>
+		</div>
+		<div class="inline-div">
+			<div id="board">
+				<canvas id="myCanvas">
+					Sorry, your browser doesn't support canvas technology.
+				</canvas>
+			</div><!-- END board -->
+		</div>
 	</div>
-	<div class="inline-div">
-		<div id="board">
-			<canvas id="myCanvas" width="500px" height="500px">
-				Sorry, your browser doesn't support canvas technology.
-			</canvas>
-			<p>Color picker: 
-				<select id="selectColor">
-					<option id="colBlack" value="black" selected="selected">Black</option>
-					<option id="colRed" value="red">Red</option>
-					<option id="colBlue" value="blue">Blue</option>
-					<option id="colGreen" value="green">Green</option>
-					<option id="colOrange" value="orange">Orange</option>
-					<option id="colYellow" value="yellow">Yellow</option>
-				</select>
-			</p>
-			<p>Line width: <input type="range" id ="lineWidthSlider" min="1" max="10" value="5">
-						<input type="number" id="lineWidthInput" value="5" style="width: 40px;"></p>
-			<button type="button" id="drawBTN">I want to DRAW</button>
-		</div><!-- END board -->
-	</div>
-	
 	
 	<script src="/socket.io/socket.io.js"></script>
-	<script>
-		var roomNumber;
+	<script src="roomNumber.js"></script>
 
-		function generateRandomString(length) {
-			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-			let randomString = '';
-
-			for (let i = 0; i < length; i++) {
-				const randomIndex = Math.floor(Math.random() * characters.length);
-				randomString += characters.charAt(randomIndex);
-			}
-
-			return randomString;
-		}
-
-		const userTag = generateRandomString(6);
-		var socket = io();
-
-		var joinNewRoomForm = document.getElementById('joinNewRoomForm');
-		var joinNewRoomInput = document.getElementById('joinNewRoomInput');
-		var creatNewRoomBTN = document.getElementById('creatNewRoomBTN');
-		var input = document.getElementById('input');
-
-		var form = document.getElementById('form');
-		var messages = document.getElementById('messages');
-
-
-		joinNewRoomForm.addEventListener('submit', function (e) {
-			e.preventDefault();
-			if (joinNewRoomInput.value) {
-				socket.emit('leave_room', roomNumber);
-				roomNumber = joinNewRoomInput.value;
-				socket.emit('join_room', roomNumber);
-				chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
-			}
-		});
-
-		creatNewRoomBTN.addEventListener('click', function (e) {
-			socket.emit('leave_room', roomNumber);
-			roomNumber = generateRandomString(6);
-			joinNewRoomInput.value = roomNumber;
-			socket.emit('join_room', roomNumber);
-			chatFrame.contentWindow.postMessage({ roomNumber: roomNumber}, '*');
-		});
-	</script>
-
-	<!-- board Script -->
-	<script type="text/JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2">
-    </script>
-	<script type="text/javascript">
 	
-		window.addEventListener('resize', onResize, false);
-		onResize();
-		
-		
-		function onResize() {
-			console.log("rez");
-			document.getElementById('chatFrame').width = window.innerWidth/3;
-			document.getElementById('chatFrame').height = window.innerHeight - 50;
-		}
-		
-		var turn_to_draw = false;
-		var drawBTN = document.getElementById('drawBTN');
+	<script type="text/JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2"></script>
+	<script src="board.js"></script>
+	
+	
+}
 
-		drawBTN.addEventListener('click', function (e) {
-			let data = {
-				"roomNumber": roomNumber,
-				"whoWantToDraw": socket.id,
-			}
-			socket.emit('turn_to_draw', data);
-
-			turn_to_draw = true;
-
-			drawBTN.innerHTML = "you're drawing now";
-		});
-
-		socket.on('turn_to_draw', function (data) {
-			console.log('drawing now: ' + data.whoWantToDraw);
-			if (data.whoWantToDraw != socket.id) {
-				turn_to_draw = false;
-				drawBTN.innerHTML = "I want to DRAW";
-			}
-		});
-
-		var canvas = document.getElementById("myCanvas");
-		var curColor = $('#selectColor option:selected').val();
-		var lineWidth = $('#lineWidthSlider').val();
-		var context = myCanvas.getContext("2d");
-		var drawing = false;
-
-		$('#selectColor').change(function () {
-			curColor = $('#selectColor option:selected').val();
-			current.color = curColor;
-		});
-		
-		$('#lineWidthSlider').change(function () {
-			lineWidth = $('#lineWidthSlider').val();
-			document.getElementById('lineWidthInput').value = lineWidth;
-		});
-		
-		$('#lineWidthInput').change(function () {
-			lineWidth = $('#lineWidthInput').val();
-			document.getElementById('lineWidthSlider').value = lineWidth;
-		});
-
-		var current = {
-			color: 'black'
-		};
-
-		canvas.addEventListener('mousedown', onMouseDown, false);
-		canvas.addEventListener('mouseup', onMouseUp, false);
-		canvas.addEventListener('mouseout', onMouseUp, false);
-		canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
-
-		//Touch support for mobile devices
-		canvas.addEventListener('touchstart', onMouseDown, false);
-		canvas.addEventListener('touchend', onMouseUp, false);
-		canvas.addEventListener('touchcancel', onMouseUp, false);
-		canvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
-
-		socket.on('drawing', onDrawingEvent);
-
-		
-
-		function drawLine(x0, y0, x1, y1, color, lineWidth, emit) {
-			context.beginPath();
-			context.moveTo(x0, y0);
-			context.lineTo(x1, y1);
-			context.strokeStyle = color;
-			context.lineWidth = lineWidth;
-			context.stroke();
-			context.closePath();
-
-			if (!emit) { return; }
-			var w = canvas.width;
-			var h = canvas.height;
-
-			socket.emit('drawing', {
-				x0: x0 / w,
-				y0: y0 / h,
-				x1: x1 / w,
-				y1: y1 / h,
-				color: color,
-				lineWidth: lineWidth
-			},roomNumber);
-		}
-
-		function onMouseDown(e) {
-			drawing = true;
-			
-			current.x = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
-			current.y = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
-			
-		}
-
-		function onMouseUp(e) {
-			if (!drawing) { return; }
-			drawing = false;
-			
-			let nextX = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
-			let nextY = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
-			
-			drawLine(current.x, current.y, nextX, nextY, current.color, lineWidth, true);
-		}
-
-		function onMouseMove(e) {
-			if (!drawing) { return; }
-			
-			let nextX = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
-			let nextY = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
-			
-			drawLine(current.x, current.y, nextX, nextY, current.color, lineWidth, true);
-			
-			current.x = e.clientX - canvas.getBoundingClientRect().left || e.touches[0].clientX - canvas.getBoundingClientRect().left;
-			current.y = e.clientY - canvas.getBoundingClientRect().top 	|| e.touches[0].clientY - canvas.getBoundingClientRect().top;
-		}
-
-		function onColorUpdate(e) {
-			current.color = e.target.className.split(' ')[1];
-		}
-
-		// limit the number of events per second
-		function throttle(callback, delay) {
-			var previousCall = new Date().getTime();
-			return function () {
-				var time = new Date().getTime();
-
-				if ((time - previousCall) >= delay) {
-					previousCall = time;
-					callback.apply(null, arguments);
-				}
-			};
-		}
-
-		function onDrawingEvent(data) {
-			var w = canvas.width;
-			var h = canvas.height;
-			console.log("draw data");
-			drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, data.lineWidth);
-		}
-
-		// make the canvas fill its parent
-		
-		
-		
-	</script>
 </body>
 
 </html>

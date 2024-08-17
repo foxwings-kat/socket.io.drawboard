@@ -17,12 +17,7 @@ var roomNumber;
 		var joinNewRoomForm = document.getElementById('joinNewRoomForm');
 		var joinNewRoomInput = document.getElementById('joinNewRoomInput');
 		var creatNewRoomBTN = document.getElementById('creatNewRoomBTN');
-		var input = document.getElementById('input');
-
-		var form = document.getElementById('form');
-		var messages = document.getElementById('messages');
-
-
+		
 		joinNewRoomForm.addEventListener('submit', function (e) {
 			e.preventDefault();
 			if (joinNewRoomInput.value) {
